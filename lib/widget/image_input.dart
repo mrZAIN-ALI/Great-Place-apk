@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart' as sysPath;
 
 class ImageInput extends StatefulWidget {
-  const ImageInput({super.key});
-
+  final Function _selectImageFun;
+  ImageInput(this._selectImageFun,);
   @override
   State<ImageInput> createState() => _ImageInputState();
 }
 
 class _ImageInputState extends State<ImageInput> {
   File? _storedImage;
-  
+
+  Future<void> _takeImage() async {
+    final piceker = ImagePicker();
+    final imageFile = await piceker.pickImage(
+      source: ImageSource.camera,
+      maxWidth: 600,
+      maxHeight: 600
+    );
+    if(imageFile== null){
+      print("Image not recived from camera");
+      return;
+      
+    }
+    setState(() {
+      _storedImage=File(imageFile!.path);
+    });
+    final appDir= await sysPath.getApplicationDocumentsDirectory();
+    final fileName= path.basename(imageFile!.path);
+    final savedImage  = await imageFile.saveTo("${appDir.path}/$fileName");
+
+    widget._selectImageFun(_storedImage,);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -47,7 +70,9 @@ class _ImageInputState extends State<ImageInput> {
           child: FloatingActionButton.extended(
             label: Text("Take Photo"),
             icon: Icon(Icons.camera),
-            onPressed: () {},
+            onPressed: () {
+              _takeImage();
+            },
           ),
         ),
       ],
