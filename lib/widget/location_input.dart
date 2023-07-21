@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:great_place/screens/customLocationSelection_Screen.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 //
 import '../helpers/locationHelper.dart';
@@ -13,6 +15,9 @@ class LocationInput extends StatefulWidget {
 }
 
 class _LocationInputState extends State<LocationInput> {
+  // Future<void > _selectCustomLocation() async {
+  //     final se
+  // }
   String _previewImageUrl = "Default_Value";
   late double lat = 0.0;
   late double long = 0.0;
@@ -22,8 +27,8 @@ class _LocationInputState extends State<LocationInput> {
     print(locData.longitude);
 
     setState(() {
-        lat = locData.latitude as double;
-    long = locData.longitude as double;
+      lat = locData.latitude as double;
+      long = locData.longitude as double;
     });
   }
 
@@ -51,11 +56,11 @@ class _LocationInputState extends State<LocationInput> {
               //     width: double.infinity,
               //   ),
               : Container(
-                  child: MapHelper().printMap(lat,long),
+                  child: MapHelper().printMap(lat, long),
                   // child: Text("sdsdsdsds"),
                 ),
         ),
-        Text("Your Location is : latitude  $lat  longitude : $long "),
+        // Text("Your Location is : latitude  $lat  longitude : $long "),
         SizedBox(
           height: 10,
         ),
@@ -69,10 +74,18 @@ class _LocationInputState extends State<LocationInput> {
               onPressed: _getCurrentUserLocation,
             ),
             FloatingActionButton.extended(
-                heroTag: Text("Select Location"),
-                icon: Icon(Icons.map),
-                label: Text("Select on Map"),
-                onPressed: null),
+              heroTag: Text("Select Location"),
+              icon: Icon(Icons.map),
+              label: Text("Select on Map"),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    fullscreenDialog: true,
+                    builder: (context) => MapScreen(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ],
