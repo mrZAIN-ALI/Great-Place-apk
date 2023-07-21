@@ -22,23 +22,36 @@ class PlaceListScreen extends StatelessWidget {
         ],
       ),
       //
-      body: Consumer<GreatPlace>(
-        child: Center(
-          child: Text(
-            "Got no place please add some places",
-          ),
-        ),
-        builder: (context, greatPlaces, chld) => greatPlaces.items.isEmpty
-            ? chld as Widget
-            : ListView.builder(
-                itemBuilder: (ctx, index) => ListTile(
-                  leading: CircleAvatar(backgroundImage: FileImage(greatPlaces.items[index].image),),
-                  title: Text(greatPlaces.items[index].title,),
-                  onTap: () {
-                    
-                  },
+      body: FutureBuilder(
+        future: Provider.of<GreatPlace>(context, listen: false)
+            .fetchAndSetDataFromDevice(),
+        builder: (context, snapshot) => snapshot.connectionState ==
+                ConnectionState.waiting
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : Consumer<GreatPlace>(
+                child: Center(
+                  child: Text(
+                    "Got no place please add some places",
+                  ),
                 ),
-                itemCount: greatPlaces.items.length,
+                builder: (context, greatPlaces, chld) =>
+                    greatPlaces.items.isEmpty
+                        ? chld as Widget
+                        : ListView.builder(
+                            itemBuilder: (ctx, index) => ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage:
+                                    FileImage(greatPlaces.items[index].image),
+                              ),
+                              title: Text(
+                                greatPlaces.items[index].title,
+                              ),
+                              onTap: () {},
+                            ),
+                            itemCount: greatPlaces.items.length,
+                          ),
               ),
       ),
     );

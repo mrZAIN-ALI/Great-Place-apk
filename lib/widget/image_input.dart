@@ -38,12 +38,12 @@ class _ImageInputState extends State<ImageInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
           height: 150,
-          width: 150,
+          width: double.infinity,
           decoration: BoxDecoration(
             border: Border.all(
               width: 1,
@@ -63,18 +63,20 @@ class _ImageInputState extends State<ImageInput> {
                 ),
           alignment: Alignment.center,
         ),
-        SizedBox(
-          width: 10,
-        ),
-        Expanded(
-          child: FloatingActionButton.extended(
-            label: Text("Take Photo"),
-            icon: Icon(Icons.camera),
-            onPressed: () {
-              _takeImage();
-            },
-          ),
-        ),
+        
+        SizedBox(height: 10,),
+
+           Container(
+            margin: EdgeInsets.all(10),
+             child: FloatingActionButton.extended(
+              label: Text("Take Photo"),
+              icon: Icon(Icons.camera),
+              onPressed: () {
+                _takeImage();
+              },
+                     ),
+           ),
+        
       ],
     );
   }
