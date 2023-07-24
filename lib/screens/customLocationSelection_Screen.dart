@@ -2,35 +2,36 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:geocoding/geocoding.dart';
 
 //
 import '../widget/buildMap.dart';
 
-// class CustomLocSelection extends StatefulWidget {
-//   const CustomLocSelection({super.key});
+class CustomLocSelection extends StatefulWidget {
+  const CustomLocSelection({super.key});
 
-//   @override
-//   State<CustomLocSelection> createState() => _CustomLocSelectionState();
-// }
+  @override
+  State<CustomLocSelection> createState() => _CustomLocSelectionState();
+}
 
-// class _CustomLocSelectionState extends State<CustomLocSelection> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Select Location"),
+class _CustomLocSelectionState extends State<CustomLocSelection> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Select Location"),
 
-//         actions: [
-//           IconButton(onPressed: (){
-//             Navigator.of(context).pop();
-//           }, icon: Icon(Icons.done),),
-//         ],
-//       ),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.of(context).pop();
+          }, icon: Icon(Icons.done),),
+        ],
+      ),
 
-//       body: BuildMap(),
-//     );
-//   }
-// }
+      body: BuildMap(),
+    );
+  }
+}
 class MapScreen extends StatefulWidget {
   @override
   _MapScreenState createState() => _MapScreenState();
@@ -84,4 +85,3 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
-
