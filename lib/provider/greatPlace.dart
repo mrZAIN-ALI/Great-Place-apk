@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:io';
 //
 import '../models/place.dart';
@@ -11,6 +12,7 @@ class GreatPlace with ChangeNotifier {
   List<Place> get items {
     return [..._items];
   }
+
 
   void addPlace(String pickedtitle, File capturedImage) {
     final newPlace = Place(

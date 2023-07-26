@@ -16,7 +16,7 @@ class BuildMap extends StatelessWidget {
         center: LatLng(Default_Lat, default_Long),
         zoom: 15,
         onTap: (tapPosition, point) {
-          _selectedLocation = point;
+          
           print(_selectedLocation.latitude);
           print(_selectedLocation.longitude);
 

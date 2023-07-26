@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import './screens/Places_List_Screen.dart';
 import './screens/add_Place_Scren.dart';
 import './screens/Place_details.dart';
+import './provider/livePostion.dart';
 
 void main() {
   //asdasdasd
@@ -17,8 +18,12 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: GreatPlace(),
+    return MultiProvider(
+      // value: GreatPlace(),
+      providers: [
+        ChangeNotifierProvider(create: (context) => GreatPlace(),),
+        ChangeNotifierProvider(create: (context) =>  LivePostionOfDevice(),)
+      ],
       //
       child: SafeArea(
         child: MaterialApp(
