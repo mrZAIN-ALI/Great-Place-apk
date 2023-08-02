@@ -24,12 +24,12 @@ class LocationInput extends StatefulWidget {
 }
 
 class _LocationInputState extends State<LocationInput> {
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   _getCurrentUserLocation();
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    // TODO: implement initState
+    _setDefaultPostion();
+    super.initState();
+  }
 
   // Future<void > _selectCustomLocation() async {
   //     final se
@@ -90,19 +90,22 @@ class _LocationInputState extends State<LocationInput> {
 
     StreamSubscription<Position> positionStream =
         await Geolocator.getPositionStream(locationSettings: locationSettings)
-            .listen((Position? pos) {
-      print(pos == null
-          ? 'Unknown'
-          : 'default print ${pos.latitude.toString()}, ${pos.longitude.toString()}');
-      // setState(() {
-      //   _currentPostion=pos;
-      //   _cordinates = LatLng(_currentPostion!.latitude,_currentPostion!.longitude);
+            .listen(
+      (Position? pos) {
+        print(pos == null
+            ? 'Unknown'
+            : 'default print ${pos.latitude.toString()}, ${pos.longitude.toString()}');
+        // setState(() {
+        //   _currentPostion=pos;
+        //   _cordinates = LatLng(_currentPostion!.latitude,_currentPostion!.longitude);
 
-      // });
-      Provider.of<LivePostionOfDevice>(context, listen: false)
-          .update_Pos(pos as Position);
-      print("returning current locaiton ${pos.latitude}");
-    },);
+        // });
+
+        Provider.of<LivePostionOfDevice>(context, listen: false)
+            .update_Pos(pos as Position);
+        print("returning current locaiton ${pos.latitude}");
+      },
+    );
   }
 
   Future<LatLng> loadLatLang() async {
@@ -115,6 +118,22 @@ class _LocationInputState extends State<LocationInput> {
     return _cordinates;
   }
 
+  Future<void> _setDefaultPostion()  async{
+    
+     Provider.of<LivePostionOfDevice>(context, listen: false).setDefalutPos(
+      Position(
+        longitude: 29.910223793892747,
+        latitude: 68.96121573455237,
+        timestamp: DateTime.now(),
+        accuracy: 1,
+        altitude: 0,
+        heading: 0,
+        speed: 0,
+        speedAccuracy: 0,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -125,7 +144,7 @@ class _LocationInputState extends State<LocationInput> {
               color: Theme.of(context).colorScheme.primary,
             ),
           ),
-          height: 170,
+          height: 200,
           width: double.infinity,
           alignment: Alignment.center,
           child: FutureBuilder<LatLng>(
@@ -139,7 +158,8 @@ class _LocationInputState extends State<LocationInput> {
                 return Text('Error: ${snapshot.error}');
               } else {
                 // Show the user data if the future completes successfully.
-                return RenderMap(cordinates: snapshot.data as LatLng,preview_Window: true);
+                return RenderMap(
+                    cordinates: snapshot.data as LatLng, preview_Window: true,);
               }
             },
           ),

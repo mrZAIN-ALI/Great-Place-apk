@@ -9,12 +9,15 @@ import 'package:latlong2/latlong.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:geocoding/geocoding.dart';
 //
 import '../provider/livePostion.dart';
 
 class RenderMap extends StatefulWidget {
   final preview_Window;
   LatLng cordinates;
+  
+  //
   RenderMap({
     required this.cordinates,
     required this.preview_Window,
@@ -25,9 +28,19 @@ class RenderMap extends StatefulWidget {
 }
 
 class _RenderMapState extends State<RenderMap> {
+  //
   List<String> _suggestions = [];
   FloatingSearchBarController _floatController = FloatingSearchBarController();
   MapController _mapController = MapController();
+  StreamSubscription<Position>? positionStream; // Define the subscription
+
+  //
+  @override
+  void dispose() {
+    // Cancel the stream subscription when the widget is disposed
+    positionStream?.cancel();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(RenderMap oldWidget) {
@@ -51,7 +64,13 @@ class _RenderMapState extends State<RenderMap> {
       speed: 0,
       speedAccuracy: 0,
     );
-    Provider.of<LivePostionOfDevice>(context,listen: false).update_Pos(currentPostion);
+    Provider.of<LivePostionOfDevice>(context, listen: false)
+        .update_Pos(currentPostion);
+    setState(() {
+      widget.cordinates = ps;
+    });
+    
+    print("Printing from postion provider : ${ps.latitude}");
   }
 
   Future<void> _getCurrentUserLocation() async {
@@ -86,17 +105,17 @@ class _RenderMapState extends State<RenderMap> {
       return Future.error(
           'Location permissions are permanently denied, we cannot request permissions.');
     }
+    // positionStream?.cancel();
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
-    print("returning current locaiton");
     final LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 100,
     );
 
-    StreamSubscription<Position> positionStream =
-        await Geolocator.getPositionStream(locationSettings: locationSettings)
+    positionStream =
+        Geolocator.getPositionStream(locationSettings: locationSettings)
             .listen((Position? pos) {
       print(pos == null
           ? 'Unknown'
@@ -108,8 +127,29 @@ class _RenderMapState extends State<RenderMap> {
       // });
       Provider.of<LivePostionOfDevice>(context, listen: false)
           .update_Pos(pos as Position);
+      setState(() {
+        widget.cordinates = LatLng(pos!.latitude, pos!.longitude);
+      });
+      _mapController.move(widget.cordinates, 15);
+      print("returning HEHE locaiton ${widget.cordinates}");
     });
   }
+
+  Future<void> resetToYourCuurrentLocation() async {
+    try {
+      Position pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      // Update the position in the provider and the widget state
+      updatePostioninProvider(LatLng(pos.latitude, pos.longitude));
+      _mapController.move(widget.cordinates, 15);
+      print("Returning one time location ${pos.toString()}");
+    } catch (e) {
+      print("Error while fetching current location: $e");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -119,11 +159,10 @@ class _RenderMapState extends State<RenderMap> {
         FlutterMap(
           mapController: _mapController,
           options: MapOptions(
-            onTap: (tapPosition, point) {
-              setState(() {
-                widget.cordinates = point;
-              });
-            },
+            
+            onTap: widget.preview_Window==true ?  (tapPosition, point) {
+              updatePostioninProvider(point);
+            } : null,
             center: widget.cordinates,
             zoom: 9.2,
           ),
@@ -135,6 +174,7 @@ class _RenderMapState extends State<RenderMap> {
             MarkerLayer(
               markers: [
                 Marker(
+                  
                   width: 45.0,
                   height: 45.0,
                   point: widget.cordinates,
@@ -151,7 +191,7 @@ class _RenderMapState extends State<RenderMap> {
         ),
         // widget.preview_Window == true ?
         if (!widget.preview_Window) buildFloatingSearchBar(),
-        Text("hehe ${widget.cordinates.toString()}")
+        // Text(" ${widget.cordinates.toString()}")
       ],
     );
   }
@@ -185,6 +225,7 @@ class _RenderMapState extends State<RenderMap> {
         FloatingSearchBarAction.icon(
           icon: Icons.place,
           onTap: () {
+            resetToYourCuurrentLocation();
             _getCurrentUserLocation();
           },
         ),
@@ -231,7 +272,8 @@ class _RenderMapState extends State<RenderMap> {
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      // Decode the response body using the correct character encoding (UTF-8)
+      final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
       return data.map((place) => place['display_name'] as String).toList();
     } else {
       throw Exception("Failed to fetch suggestions");
@@ -261,15 +303,13 @@ class _RenderMapState extends State<RenderMap> {
       final places = await _fetchPlaces(selectedSuggestion);
       if (places.isNotEmpty) {
         final selectedLocation = places[0];
-
-        setState(() {
-          updatePostioninProvider(
-              LatLng(selectedLocation.latitude, selectedLocation.longitude));
-        });
-        print("hehehe lo l ${widget.cordinates.toString()}");
+        updatePostioninProvider(
+          LatLng(selectedLocation.latitude, selectedLocation.longitude),
+        );
+        // print("hehehe lo l ${widget.cordinates.toString()}");
         _mapController.move(widget.cordinates, 15);
       }
-
+      Provider.of<LivePostionOfDevice>(context,listen: false).toggleLocationBool();
       setState(() {
         _suggestions.clear();
       });
@@ -291,11 +331,35 @@ class MapLocation {
   });
 
   factory MapLocation.fromJson(Map<String, dynamic> json) {
+    // Handle any errors that may occur during parsing
+    double parseDouble(dynamic value) {
+      if (value is double) {
+        return value;
+      } else if (value is String) {
+        return double.tryParse(value) ?? 0.0;
+      } else {
+        return 0.0;
+      }
+    }
+
     return MapLocation(
-      latitude: double.parse(json['lat']),
-      longitude: double.parse(json['lon']),
+      latitude: parseDouble(json['lat']),
+      longitude: parseDouble(json['lon']),
       displayName: json['display_name'],
       address: json['address'] != null ? json['address']['formatted'] : null,
     );
+  }
+}
+
+Future<List<MapLocation>> _fetchPlaces(String query) async {
+  final url =
+      "https://nominatim.openstreetmap.org/search?q=$query&format=json&addressdetails=1";
+  final response = await http.get(Uri.parse(url));
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = jsonDecode(utf8.decode(response.bodyBytes));
+    return data.map((place) => MapLocation.fromJson(place)).toList();
+  } else {
+    throw Exception("Failed to fetch places");
   }
 }
