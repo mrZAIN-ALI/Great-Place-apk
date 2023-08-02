@@ -6,7 +6,7 @@ import './screens/Places_List_Screen.dart';
 import './screens/add_Place_Scren.dart';
 import './screens/Place_details.dart';
 import './provider/livePostion.dart';
-
+import './screens/Place_details.dart';
 void main() {
   //asdasdasd
   runApp(const MyApp());
@@ -71,6 +71,7 @@ class MyApp extends StatelessWidget {
       
           routes: {
             AddPlaceScreen.routeName:(context) => AddPlaceScreen(),
+            PlaceDetailScreen.routeName:(context)=>PlaceDetailScreen(),
           },
         ),
       ),
