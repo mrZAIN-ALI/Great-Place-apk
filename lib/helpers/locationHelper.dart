@@ -3,47 +3,29 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher.dart';
-class MapHelper {
+import 'package:provider/provider.dart';
+import 'package:geocoding/geocoding.dart';
 
-  FlutterMap printMap(double lat, double long) {
-    return FlutterMap(
-      options: MapOptions(
-        
-        center: LatLng(lat, long),
-        zoom: 15.0,
-      ),
-          // nonRotatedChildren: [
-      // RichAttributionWidget(
-      //   attributions: [
-      //     TextSourceAttribution(
-      //       'OpenStreetMap contributors',
-      //       onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
-      //     ),
-      //   ],
-      // ),
-    // ],
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.app',
-        ),
+class LocationHelper {
 
-        MarkerLayer(
-                  markers: [
-                    Marker(
-                      width: 45.0,
-                      height: 45.0,
-                      point: LatLng(lat, long),
-                      builder: (context) => Container(
-                        child: Icon(
-                          Icons.location_pin,
-                          color: Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-      ],
-    );
+  static Future<String> getAddress(Position pos) async {
+    String address = "DefaultAdress";
+    // final pos=Provider.of<LivePostionOfDevice>(context,listen: false).get_currentPostion();
+    try {
+      List<Placemark> placemarks =
+          await placemarkFromCoordinates(pos.latitude, pos.longitude);
+      if (placemarks != null && placemarks.isNotEmpty) {
+        Placemark place = placemarks[0];
+
+        address =
+            "${place.name}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+      }
+    } catch (e) {
+      print("Error: $e");
+
+      address = "Error fetching address";
+    }
+
+    return address;
   }
 }

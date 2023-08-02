@@ -14,15 +14,11 @@ class GreatPlace with ChangeNotifier {
   }
 
 
-  void addPlace(String pickedtitle, File capturedImage) {
+  void addPlace(String pickedtitle, File capturedImage,PlaceLocation location) {
     final newPlace = Place(
       id: DateTime.now().toString(),
       image: capturedImage,
-      location: Location(
-        latitude: 0,
-        longitude: 0,
-        adress: "default adress",
-      ),
+      location: location,
       title: pickedtitle,
     );
     _items.add(newPlace);
@@ -34,6 +30,9 @@ class GreatPlace with ChangeNotifier {
         "id": newPlace.id,
         "title": newPlace.title,
         "image": newPlace.image.path,
+        "loc_lat": newPlace.location.latitude,
+        "loc_lon": newPlace.location.longitude,
+        "address": newPlace.location.adress,
       },
     );
   }
@@ -45,10 +44,10 @@ class GreatPlace with ChangeNotifier {
           (item) => Place(
             id: item["id"],
             title: item["title"],
-            location: Location(
-              latitude: 0,
-              longitude: 0,
-              adress: "default adress",
+            location: PlaceLocation(
+              latitude: item["loc_lat"],
+              longitude: item["loc_lon"],
+              adress: item["address"],
             ),
             image: File(
               item["image"],

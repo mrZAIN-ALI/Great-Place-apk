@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocode/geocode.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:great_place/widget/printMap.dart';
 import 'package:http/http.dart' as http;
@@ -118,9 +119,8 @@ class _LocationInputState extends State<LocationInput> {
     return _cordinates;
   }
 
-  Future<void> _setDefaultPostion()  async{
-    
-     Provider.of<LivePostionOfDevice>(context, listen: false).setDefalutPos(
+  Future<void> _setDefaultPostion() async {
+    Provider.of<LivePostionOfDevice>(context, listen: false).setDefalutPos(
       Position(
         longitude: 29.910223793892747,
         latitude: 68.96121573455237,
@@ -133,6 +133,9 @@ class _LocationInputState extends State<LocationInput> {
       ),
     );
   }
+
+  var address ;
+
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +162,9 @@ class _LocationInputState extends State<LocationInput> {
               } else {
                 // Show the user data if the future completes successfully.
                 return RenderMap(
-                    cordinates: snapshot.data as LatLng, preview_Window: true,);
+                  cordinates: snapshot.data as LatLng,
+                  preview_Window: true,
+                );
               }
             },
           ),
@@ -192,6 +197,7 @@ class _LocationInputState extends State<LocationInput> {
             ),
           ],
         ),
+
       ],
     );
   }

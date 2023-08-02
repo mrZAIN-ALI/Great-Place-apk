@@ -37,30 +37,6 @@ class LivePostionOfDevice extends ChangeNotifier{
     return _isLocationPicked;
   }
 
-  
-    Future<void> getAddressFromCoordinates(Position pos) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(pos.latitude, pos.longitude);
-      if (placemarks != null && placemarks.isNotEmpty) {
-        Placemark placemark = placemarks[0];
-        
-          _adress = placemark.name.toString() ;
-        
-      } else {
-        
-          _adress = 'Address not found';
-        
-      }
-    } catch (e) {
-   
-        _adress = 'Error: Unable to get address';
-      print('Error: $e');
-    }
-  }   
 
-    Future<void> getAdressName() async{
 
-      return await getAddressFromCoordinates(currentPostion).then((value) => _adress);
-
-    }
 }
